@@ -124,7 +124,13 @@ let package = Package(
         .library(name: "TreeSitterYAMLRunestone", targets: ["TreeSitterYAMLRunestone"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/simonbs/Runestone", from: "0.4.1")
+        // Forked to bradenacurtis801/Runestone at 0.5.3, which itself points at
+        // bradenacurtis801/tree-sitter (Xcode 26 C++ interop header fix — see
+        // that fork's commit, and tree-sitter/tree-sitter#5523 for the related
+        // upstream issue). Must stay in lockstep with whichever Runestone fork
+        // tag is used elsewhere in the dependency graph, or SPM resolves two
+        // different "Runestone" package identities into one build.
+        .package(url: "https://github.com/bradenacurtis801/Runestone", from: "0.4.1")
     ],
     targets: [
         .target(name: "TreeSitterLanguagesCommon"),
