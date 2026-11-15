@@ -84,3 +84,7 @@ Thanks to all the contributors to these repositories for their great effort in e
 - [tree-sitter-typescript](https://github.com/tree-sitter/tree-sitter-typescript)
 - [tree-sitter-yaml](https://github.com/ikatyang/tree-sitter-yaml)
 - [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
+
+## Added in this fork
+
+Dockerfile (`TreeSitterDockerfile`, from camdencheek/tree-sitter-dockerfile, MIT), HCL / Terraform (`TreeSitterHCL`, tree-sitter-grammars/tree-sitter-hcl v1.1.0, Apache-2.0) and Make (`TreeSitterMake`, tree-sitter-grammars/tree-sitter-make v1.1.1, MIT), each as the usual three targets. Their licenses are in `Licenses/`. The grammars are the newest releases that still use parser ABI 14 (the tree-sitter runtime here reads 13–14; the newer ones are 15). The HCL grammar has no highlight queries upstream, so `TreeSitterHCLQueries/highlights.scm` is written here, and the Dockerfile and Make ones use the theme's capture names (`keyword.storage`, `keyword.import`, `property`…) rather than the upstream's older ones. Compile a query against its grammar before changing it: one that does not compile leaves the language with no colors.
