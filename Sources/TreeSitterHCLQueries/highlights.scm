@@ -1,33 +1,119 @@
-; HCL (Terraform, Packer, Nomad…). The grammar ships no highlight query: this one names what a theme colors apart.
-(comment) @comment
+; Adapted for Runestone; provenance and license: LANGUAGE_SOURCES.md
 
-; A block's first word (`resource`, `variable`, `data`, `module`, `dynamic`…) and its labels.
-(block . (identifier) @keyword.storage)
-(block (string_lit) @string)
+[
+  "!"
+  "*"
+  "/"
+  "%"
+  "+"
+  "-"
+  ">"
+  ">="
+  "<"
+  "<="
+  "=="
+  "!="
+  "&&"
+  "||"
+] @operator
 
-(attribute (identifier) @property)
-(object_elem key: (expression (variable_expr (identifier) @property.key)))
+[
+  "{"
+  "}"
+  "["
+  "]"
+  "("
+  ")"
+] @punctuation.bracket
 
-(function_call (identifier) @function)
+[
+  "."
+  ".*"
+  ","
+  "[*]"
+] @punctuation.delimiter
 
-(variable_expr (identifier) @variable)
-(get_attr (identifier) @property)
+[
+  (ellipsis)
+  "?"
+  "=>"
+] @punctuation.special
 
-(literal_value (bool_lit) @constant.builtin)
-(literal_value (null_lit) @constant.builtin)
+[
+  ":"
+  "="
+] @none
+
+[
+  "for"
+  "endfor"
+  "in"
+] @keyword.repeat
+
+[
+  "if"
+  "else"
+  "endif"
+] @keyword.conditional
+
+[
+  (quoted_template_start)
+  (quoted_template_end)
+  (template_literal)
+] @string
+
+[
+  (heredoc_identifier)
+  (heredoc_start)
+] @punctuation.delimiter
+
+[
+  (template_interpolation_start)
+  (template_interpolation_end)
+  (template_directive_start)
+  (template_directive_end)
+  (strip_marker)
+] @punctuation.special
+
 (numeric_lit) @number
 
-(string_lit) @string
-(template_literal) @string
-(heredoc_template) @string
+(bool_lit) @constant.builtin
 
-(template_interpolation_start) @punctuation.special
-(template_interpolation_end) @punctuation.special
-(template_directive_start) @punctuation.special
-(template_directive_end) @punctuation.special
+(null_lit) @constant
 
-["if" "else" "endif" "for" "endfor" "in"] @keyword
+(comment) @comment
 
-["!" "*" "/" "%" "+" "-" "<" ">" "==" "!=" "<=" ">=" "&&" "||" "?" ":" "=>"] @operator
-["[" "]" "(" ")"] @punctuation.bracket
-["," "."] @punctuation.delimiter
+(identifier) @variable
+
+(body
+  (block
+    (identifier) @keyword))
+
+(body
+  (block
+    (body
+      (block
+        (identifier) @type))))
+
+(function_call
+  (identifier) @function.call)
+
+(attribute
+  (identifier) @property)
+
+
+
+
+(object_elem
+  key: (expression
+    (variable_expr
+      (identifier) @property)))
+
+
+
+
+(expression
+  (variable_expr
+    (identifier) @variable.builtin)
+  (get_attr
+    (identifier) @property))

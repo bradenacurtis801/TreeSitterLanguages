@@ -35,11 +35,68 @@ The package contains the following three libraries for each language.
 |TreeSitter{Language}Queries|The queries to be used with the language. For more information on queries, please refer to [Tree-sitter's documentation](https://tree-sitter.github.io/tree-sitter/syntax-highlighting#queries). The only reason this is a separate library and not part of the TreeSitter{Language} library is that C code and Swift code cannot be mixed in a library using Swift Package Manager.|
 |TreeSitter{Language}Runestone|Exposes the language to be used with [Runestone](https://github.com/simonbs/runestone). This library depends on the TreeSitter{Language} and TreeSitter{Language}Queries libraries and it is the only library you need to import when using Runestone. The library exposes the language as an extension on [TreeSitterLanguage](https://github.com/simonbs/Runestone/blob/main/Sources/Runestone/Language/TreeSitter/TreeSitterLanguage.swift) (e.g. `TreeSitterLanguage.javaScript`) that's ready to be used in Runestone. It also includes the indentation specification for select languages.|
 
-Furthermore the package contains the TreeSitterLanguagesCommon library which exposes base types from Tree-sitter like `TSLanguage`. This is useful when you need to refer to these types in your source code, for example if you return a `TSLanguage` from a function.
+Furthermore the package contains the TreeSitterLanguagesCommon library which exposes Tree-sitter's scalar types and an opaque `TSLanguage` declaration. The language structure belongs to the runtime and must not be accessed directly. With Tree-sitter 0.27.1, Swift APIs that pass languages use `OpaquePointer`, including the values returned by `tree_sitter_{language}()`.
+
+Pinned parser sources, licenses, query adaptations, and limitations are indexed in [LANGUAGE_SOURCES.md](LANGUAGE_SOURCES.md).
+
+### All Runestone languages
+
+Apps that use the full collection can depend on the `RunestoneLanguageSupport`
+product instead of listing every `TreeSitter{Language}Runestone` product:
+
+```swift
+.target(
+    name: "MyEditor",
+    dependencies: [
+        .product(name: "Runestone", package: "Runestone"),
+        .product(name: "RunestoneLanguageSupport", package: "TreeSitterLanguages")
+    ]
+)
+```
+
+Then import the umbrella to make every bundled language extension available:
+
+```swift
+import Runestone
+import RunestoneLanguageSupport
+
+let language = TreeSitterLanguage.swift
+```
+
+This opt-in product includes all grammar and query resource dependencies, including
+languages added to future package revisions. Use the individual products when you
+want to limit build time and bundled resources. The umbrella does not provide file
+extension detection or register injected languages; those remain the app's responsibility.
+Runestone itself remains independent of this package.
+
+## Code Folding
+
+The Runestone libraries include folding queries for 45 languages. To show folding controls in the gutter, enable code folding on your text view:
+
+```swift
+textView.isCodeFoldingEnabled = true
+```
+
+Markdown supports sections with hash-prefixed or underline-style headings, as well as fenced code blocks.
+
+If you are creating a Runestone language manually, create a `TreeSitterLanguage.Query` from `Query.foldsFileURL` and pass it to the `foldsQuery` initializer parameter. This URL is optional. Comment, JSDoc, JSON5, MarkdownInline, R, and Regex do not include folding queries and return `nil`.
+
+The queries are copied from the grammar repositories and Neovim's nvim-treesitter. Refer to [Language Sources](LANGUAGE_SOURCES.md#folding-queries) for their revisions, licenses, and instructions on updating them.
 
 ## Compatibility
 
 The parser.c file of a language is generated using [tree-sitter-cli](https://github.com/tree-sitter/tree-sitter/blob/master/cli/README.md) and a language generated with one version of the CLI may not be compatible with future versions of Tree-sitter. All languages in this repository are kept compatible with the version of Tree-sitter used by my [Runestone](https://github.com/simonbs/runestone) framework.
+
+The grammars include ABI 15 and require Runestone’s Tree-sitter 0.27.1 integration. The package pins a Runestone revision that includes code folding. A release containing that API is required before switching to a versioned dependency. Each grammar retains its matching private generated parser header.
+
+The compatibility check compiles every bundled grammar against Tree-sitter 0.27.1, parses a representative sample, and compiles and executes every bundled query, including inherited highlight queries. Run it with a checkout of that Tree-sitter release:
+
+```sh
+git clone --depth 1 --branch v0.27.1 https://github.com/tree-sitter/tree-sitter.git /tmp/tree-sitter
+python3 Tests/Compatibility/test.py /tmp/tree-sitter
+```
+
+Pass language names after the checkout path to rerun a subset, for example `JSON Swift SCSS`. This checks runtime and query compatibility; the iOS package build separately checks the Swift Runestone integrations.
 
 ## Acknowledgements
 
@@ -54,6 +111,7 @@ Thanks to all the contributors to these repositories for their great effort in e
 - [tree-sitter-c-sharp](https://github.com/tree-sitter/tree-sitter-c-sharp)
 - [tree-sitter-cpp](https://github.com/tree-sitter/tree-sitter-cpp)
 - [tree-sitter-css](https://github.com/tree-sitter/tree-sitter-css)
+- [tree-sitter-diff](https://github.com/tree-sitter-grammars/tree-sitter-diff)
 - [tree-sitter-elixir](https://github.com/elixir-lang/tree-sitter-elixir)
 - [tree-sitter-elm](https://github.com/elm-tooling/tree-sitter-elm)
 - [tree-sitter-go](https://github.com/tree-sitter/tree-sitter-go)
@@ -67,7 +125,7 @@ Thanks to all the contributors to these repositories for their great effort in e
 - [tree-sitter-julia](https://github.com/tree-sitter/tree-sitter-julia)
 - [tree-sitter-latex](https://github.com/latex-lsp/tree-sitter-latex)
 - [tree-sitter-lua](https://github.com/tjdevries/tree-sitter-lua)
-- [tree-sitter-markdown](https://github.com/MDeiml/tree-sitter-markdown)
+- [tree-sitter-markdown](https://github.com/tree-sitter-grammars/tree-sitter-markdown)
 - [tree-sitter-ocaml](https://github.com/tree-sitter/tree-sitter-ocaml)
 - [tree-sitter-perl](https://github.com/ganezdragon/tree-sitter-perl)
 - [tree-sitter-php](https://github.com/tree-sitter/tree-sitter-php)
@@ -82,9 +140,17 @@ Thanks to all the contributors to these repositories for their great effort in e
 - [tree-sitter-swift](https://github.com/alex-pinkus/tree-sitter-swift)
 - [tree-sitter-toml](https://github.com/ikatyang/tree-sitter-toml)
 - [tree-sitter-typescript](https://github.com/tree-sitter/tree-sitter-typescript)
-- [tree-sitter-yaml](https://github.com/ikatyang/tree-sitter-yaml)
+- [tree-sitter-yaml](https://github.com/tree-sitter-grammars/tree-sitter-yaml)
 - [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
+- [tree-sitter-nix](https://github.com/nix-community/tree-sitter-nix)
+- [tree-sitter-xml](https://github.com/tree-sitter-grammars/tree-sitter-xml)
+
+## Additional adopted languages
+
+Bicep, CMake, Dart, Fish, Glimmer, HCL, ObjectiveC, Pascal, Proto, Scala.
+
+See [language sources](LANGUAGE_SOURCES.md) for exact revisions and query adaptations.
 
 ## Added in this fork
 
-Dockerfile (`TreeSitterDockerfile`, from camdencheek/tree-sitter-dockerfile, MIT), HCL / Terraform (`TreeSitterHCL`, tree-sitter-grammars/tree-sitter-hcl v1.1.0, Apache-2.0) and Make (`TreeSitterMake`, tree-sitter-grammars/tree-sitter-make v1.1.1, MIT), each as the usual three targets. Their licenses are in `Licenses/`. The grammars are the newest releases that still use parser ABI 14 (the tree-sitter runtime here reads 13–14; the newer ones are 15). The HCL grammar has no highlight queries upstream, so `TreeSitterHCLQueries/highlights.scm` is written here, and the Dockerfile and Make ones use the theme's capture names (`keyword.storage`, `keyword.import`, `property`…) rather than the upstream's older ones. Compile a query against its grammar before changing it: one that does not compile leaves the language with no colors.
+Dockerfile (`TreeSitterDockerfile`, from camdencheek/tree-sitter-dockerfile, MIT) and Make (`TreeSitterMake`, tree-sitter-grammars/tree-sitter-make v1.1.1, MIT), each as the usual three targets. Their licenses are in `Licenses/`. The grammars are parser ABI 14, which the tree-sitter runtime reads. Their queries use the theme's capture names (`keyword.storage`, `keyword.import`, `property`…) rather than the upstream's older ones, and have no folding query. Compile a query against its grammar before changing it: one that does not compile leaves the language with no colors.
