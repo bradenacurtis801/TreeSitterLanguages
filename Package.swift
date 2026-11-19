@@ -10,6 +10,9 @@ let package = Package(
         .library(name: "TreeSitterDockerfile", targets: ["TreeSitterDockerfile"]),
         .library(name: "TreeSitterDockerfileQueries", targets: ["TreeSitterDockerfileQueries"]),
         .library(name: "TreeSitterDockerfileRunestone", targets: ["TreeSitterDockerfileRunestone"]),
+        .library(name: "TreeSitterINI", targets: ["TreeSitterINI"]),
+        .library(name: "TreeSitterINIQueries", targets: ["TreeSitterINIQueries"]),
+        .library(name: "TreeSitterINIRunestone", targets: ["TreeSitterINIRunestone"]),
         .library(name: "RunestoneLanguageSupport", targets: ["RunestoneLanguageSupport"]),
         .library(name: "TreeSitterBicep", targets: ["TreeSitterBicep"]),
         .library(name: "TreeSitterBicepQueries", targets: ["TreeSitterBicepQueries"]),
@@ -193,6 +196,7 @@ let package = Package(
                 "TreeSitterFishRunestone",
                 "TreeSitterGlimmerRunestone",
                 "TreeSitterGoRunestone",
+                "TreeSitterINIRunestone",
                 "TreeSitterHCLRunestone",
                 "TreeSitterHTMLRunestone",
                 "TreeSitterHaskellRunestone",
@@ -267,11 +271,14 @@ let package = Package(
         .target(name: "TreeSitterScalaQueries", resources: [.copy("highlights.scm"), .copy("folds.scm")]),
         .target(name: "TreeSitterScalaRunestone", dependencies: ["Runestone", "TreeSitterScala", "TreeSitterScalaQueries"]),
         .testTarget(name: "RequestedLanguageHighlightTests", dependencies: [
-            "Runestone", "TreeSitterNixRunestone", "TreeSitterXMLRunestone", "TreeSitterDiffRunestone"
+            "Runestone", "TreeSitterNixRunestone", "TreeSitterXMLRunestone", "TreeSitterDiffRunestone", "TreeSitterINIRunestone"
         ]),
         .target(name: "TreeSitterDockerfile", cSettings: [.headerSearchPath("src")]),
         .target(name: "TreeSitterDockerfileQueries", resources: [.copy("highlights.scm")]),
         .target(name: "TreeSitterDockerfileRunestone", dependencies: ["Runestone", "TreeSitterDockerfile", "TreeSitterDockerfileQueries"]),
+        .target(name: "TreeSitterINI", cSettings: [.headerSearchPath("src")]),
+        .target(name: "TreeSitterINIQueries", resources: [.copy("highlights.scm")]),
+        .target(name: "TreeSitterINIRunestone", dependencies: ["Runestone", "TreeSitterINI", "TreeSitterINIQueries"]),
         .target(name: "TreeSitterLanguagesCommon"),
         .target(name: "TreeSitterAstro", cSettings: [.headerSearchPath("src")]),
         .target(name: "TreeSitterAstroQueries", resources: [.copy("highlights.scm"), .copy("injections.scm"), .copy("folds.scm")]),

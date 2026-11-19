@@ -153,4 +153,6 @@ See [language sources](LANGUAGE_SOURCES.md) for exact revisions and query adapta
 
 ## Added in this fork
 
+INI (`TreeSitterINI`, justinmk/tree-sitter-ini at e4018b5, Apache-2.0), as the usual three targets, parser ABI 15, with a query named for the theme's captures (section names as `type`, setting names as `property`, values as `string`). Its license is in `Licenses/`.
+
 Dockerfile (`TreeSitterDockerfile`, from camdencheek/tree-sitter-dockerfile, MIT) and Make (`TreeSitterMake`, tree-sitter-grammars/tree-sitter-make v1.1.1, MIT), each as the usual three targets. Their licenses are in `Licenses/`. The grammars are parser ABI 14, which the tree-sitter runtime reads. Their queries use the theme's capture names (`keyword.storage`, `keyword.import`, `property`…) rather than the upstream's older ones, and have no folding query. Compile a query against its grammar before changing it: one that does not compile leaves the language with no colors.

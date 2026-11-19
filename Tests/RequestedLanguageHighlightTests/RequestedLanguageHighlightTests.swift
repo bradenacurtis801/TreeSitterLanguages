@@ -1,5 +1,6 @@
 @testable import Runestone
 import TreeSitterDiffRunestone
+import TreeSitterINIRunestone
 import TreeSitterNixRunestone
 import TreeSitterXMLRunestone
 import UIKit
@@ -71,6 +72,19 @@ final class RequestedLanguageHighlightTests: XCTestCase {
         assertColor(.cyan, for: "&custom;", in: result)
         assertColor(.brown, for: "<literal>", in: result)
         assertColor(.gray, for: "<!-- comment -->", in: result)
+    }
+
+    func testINISettingsSectionsAndComments() {
+        let source = "; Example\n[server]\nhost = 0.0.0.0\nport = 8080\n\n[database]\nurl = postgres://u:p@h/db\n# trailing\n"
+        let result = highlight(source, language: .ini)
+        assertColor(.gray, for: "; Example", in: result)
+        assertColor(.gray, for: "# trailing", in: result)
+        assertColor(.red, for: "host", in: result)
+        assertColor(.red, for: "port", in: result)
+        assertColor(.red, for: "url", in: result)
+        assertColor(.brown, for: "0.0.0.0", in: result)
+        assertColor(.brown, for: "8080", in: result)
+        assertColor(.brown, for: "postgres://u:p@h/db", in: result)
     }
 
     // Exercise the production parser, Swift predicates, capture ordering and
